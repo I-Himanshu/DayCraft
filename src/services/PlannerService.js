@@ -28,7 +28,27 @@ export class PlannerService {
 
   async getSchedule(date) {
     const key = this.getStorageKey(this.KEYS.SCHEDULE_PREFIX, date);
-    return (await this.dataService.get(key)) || {};
+    const scheduleData =  (await this.dataService.get(key));
+    if(scheduleData) {
+      return scheduleData;
+    }else{
+      const defaultSchedule = {
+        "5:00": "",
+        "8:00": "",
+        "9:00": "",
+        "10:00": "",
+        "11:00": "",
+        "12:00": "",
+        "14:00": "",
+        "17:00": "",
+        "19:00": "",
+        "20:00": "",
+        "22:00": "",
+        "23:00": ""
+      }
+      await this.dataService.set(key, defaultSchedule);
+      return defaultSchedule;
+    }
   }
 
   async updateSchedule(date, timeSlot, event) {

@@ -1,7 +1,6 @@
-// src/components/schedule/DateSelector.jsx
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import { CalendarIcon } from '@heroicons/react/24/outline';
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 
 const DateSelector = ({ selectedDate, onDateSelect }) => {
   const scrollContainerRef = useRef(null);
@@ -51,13 +50,13 @@ const DateSelector = ({ selectedDate, onDateSelect }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+    <div className="bg-white rounded-xl shadow-lg border border-gray-200">
       {/* Current Date Display */}
-      <div className="px-6 py-4 border-b border-gray-100">
+      <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <CalendarIcon className="w-5 h-5 text-blue-500" />
-            <h2 className="text-lg font-semibold text-gray-900">
+            <CalendarIcon className="w-6 h-6 text-blue-500" />
+            <h2 className="text-xl font-semibold text-gray-900">
               {new Intl.DateTimeFormat('en-US', {
                 weekday: 'long',
                 month: 'long',
@@ -68,7 +67,7 @@ const DateSelector = ({ selectedDate, onDateSelect }) => {
           </div>
           <button 
             onClick={() => onDateSelect(new Date())}
-            className="text-sm text-blue-500 hover:text-blue-600 font-medium"
+            className="text-sm text-blue-500 hover:text-blue-600 font-medium transition-colors duration-200"
           >
             Today
           </button>
@@ -77,18 +76,18 @@ const DateSelector = ({ selectedDate, onDateSelect }) => {
 
       {/* Date Selector */}
       <div className="px-4 py-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2">
           <button
             onClick={() => scroll('left')}
-            className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             aria-label="Scroll left"
           >
-            <ChevronLeftIcon className="w-5 h-5 text-gray-600" />
+            <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
           </button>
           
           <div 
             ref={scrollContainerRef}
-            className="flex-1 overflow-x-hidden flex gap-1.5 scroll-smooth px-2"
+            className="flex flex-nowrap overflow-x-auto gap-2 scroll-smooth px-2"
           >
             {getDates().map((date) => {
               const { weekday, month, day } = formatDate(date);
@@ -100,7 +99,7 @@ const DateSelector = ({ selectedDate, onDateSelect }) => {
                   key={date.toISOString()}
                   onClick={() => onDateSelect(date)}
                   className={`
-                    flex-shrink-0 px-3 py-2 rounded-lg transition-all duration-200
+                    flex-shrink-0 px-4 py-3 rounded-lg transition-all duration-200
                     hover:bg-gray-50 relative group
                     ${isToday(date) ? 'bg-blue-50' : ''}
                     ${isSelected ? 'ring-2 ring-blue-500 ring-offset-2' : ''}
@@ -124,10 +123,10 @@ const DateSelector = ({ selectedDate, onDateSelect }) => {
 
           <button
             onClick={() => scroll('right')}
-            className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             aria-label="Scroll right"
           >
-            <ChevronRightIcon className="w-5 h-5 text-gray-600" />
+            <ChevronRightIcon className="w-6 h-6 text-gray-600" />
           </button>
         </div>
       </div>
