@@ -12,18 +12,10 @@ const usePlanner = () => {
   const { user } = useAuth();
   const [plannerService, setPlannerService] = useState(null); 
   useEffect(() => {
-    if (user) {
-      // Initialize PlannerService with DataService and FirestoreService
-      console.log(user);
       const service = new PlannerService(new DataService(new FirestoreService(user)));
       setPlannerService(service);  // Set the service in state
-    }
   }, [user]);  // Effect runs when 'user' changes
 
-  if (!user) {
-    // Return loading screen or message until user is available
-    return;
-  }
 
   // Load data whenever selected date changes
   useEffect(() => {

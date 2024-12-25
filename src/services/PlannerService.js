@@ -1,130 +1,192 @@
-// src/services/PlannerService.js
 export class PlannerService {
   constructor(dataService) {
     this.dataService = dataService;
-    this.KEYS = {
-      SCHEDULE_PREFIX: "planner_schedule_",
-      NOTES_PREFIX: "planner_notes_",
-      TODOS_PREFIX: "planner_todos_",
-    };
+    this.STORAGE_KEY = 'planner_data';
+    // console.log("PlannerService initialized");
   }
 
   formatDateKey(date) {
     return date.toISOString().split('T')[0];
   }
 
-  getStorageKey(prefix, date) {
-    return `${prefix}${this.formatDateKey(date)}`;
+  async getAllPlannerData() {
+    return await this.dataService.get(this.STORAGE_KEY) || {
+      schedules: {},
+      notes: {},
+      todos: {}
+    };
+  }
+
+  async savePlannerData(data) {
+    await this.dataService.set(this.STORAGE_KEY, data);
+    return data;
   }
 
   getDefaultSchedule() {
-    const schedule = {};
-    for (let hour = 9; hour <= 17; hour++) {
-      const timeSlot = `${hour}:00`;
-      schedule[timeSlot] = "";
-    }
-    return schedule;
+    return {
+      "5:00": "",
+      "10:00": "",
+      "12:00": "",
+      "17:00": "",
+      "20:00": "",
+      "22:00": "",
+      "23:00": ""
+    };
   }
 
   async getSchedule(date) {
-    const key = this.getStorageKey(this.KEYS.SCHEDULE_PREFIX, date);
-    const scheduleData =  (await this.dataService.get(key));
-    if(scheduleData) {
-      return scheduleData;
-    }else{
-      const defaultSchedule = {
-        "5:00": "",
-        "8:00": "",
-        "9:00": "",
-        "10:00": "",
-        "11:00": "",
-        "12:00": "",
-        "14:00": "",
-        "17:00": "",
-        "19:00": "",
-        "20:00": "",
-        "22:00": "",
-        "23:00": ""
-      }
-      await this.dataService.set(key, defaultSchedule);
-      return defaultSchedule;
-    }
+    const dateKey = this.formatDateKey(date);
+    const data = await this.getAllPlannerData();
+    return data.schedules[dateKey] || this.getDefaultSchedule();
   }
 
   async updateSchedule(date, timeSlot, event) {
-    const key = this.getStorageKey(this.KEYS.SCHEDULE_PREFIX, date);
-    const schedule = await this.getSchedule(date);
-    schedule[timeSlot] = event;
-    await this.dataService.set(key, schedule);
-    return schedule;
+    const dateKey = this.formatDateKey(date);
+    const data = await this.getAllPlannerData();
+    
+    if (!data.schedules[dateKey]) {
+      data.schedules[dateKey] = this.getDefaultSchedule();
+    }
+    
+    data.schedules[dateKey][timeSlot] = event;
+    await this.savePlannerData(data);
+    return data.schedules[dateKey];
   }
 
   async addTimeSlot(date, timeSlot) {
-    const key = this.getStorageKey(this.KEYS.SCHEDULE_PREFIX, date);
-    const schedule = await this.getSchedule(date);
-    if (!schedule[timeSlot]) {
-      schedule[timeSlot] = "";
-      await this.dataService.set(key, schedule);
+    const dateKey = this.formatDateKey(date);
+    const data = await this.getAllPlannerData();
+    
+    if (!data.schedules[dateKey]) {
+      data.schedules[dateKey] = this.getDefaultSchedule();
     }
-    return schedule;
+    
+    if (!data.schedules[dateKey][timeSlot]) {
+      data.schedules[dateKey][timeSlot] = "";
+      await this.savePlannerData(data);
+    }
+    
+    return data.schedules[dateKey];
   }
 
   async removeTimeSlot(date, timeSlot) {
-    const key = this.getStorageKey(this.KEYS.SCHEDULE_PREFIX, date);
-    const schedule = await this.getSchedule(date);
-    delete schedule[timeSlot];
-    await this.dataService.set(key, schedule);
-    return schedule;
+    const dateKey = this.formatDateKey(date);
+    const data = await this.getAllPlannerData();
+    
+    if (data.schedules[dateKey]) {
+      delete data.schedules[dateKey][timeSlot];
+      await this.savePlannerData(data);
+    }
+    
+    return data.schedules[dateKey];
   }
 
   async getNotes(date) {
-    const key = this.getStorageKey(this.KEYS.NOTES_PREFIX, date);
-    return (await this.dataService.get(key)) || "";
+    const dateKey = this.formatDateKey(date);
+    const data = await this.getAllPlannerData();
+    return data.notes[dateKey] || "";
   }
 
   async updateNotes(date, notes) {
-    const key = this.getStorageKey(this.KEYS.NOTES_PREFIX, date);
-    await this.dataService.set(key, notes);
+    const dateKey = this.formatDateKey(date);
+    const data = await this.getAllPlannerData();
+    data.notes[dateKey] = notes;
+    await this.savePlannerData(data);
     return notes;
   }
 
-  // Updated Todo methods to be date-specific
   async getTodos(date) {
-    const key = this.getStorageKey(this.KEYS.TODOS_PREFIX, date);
-    return (await this.dataService.get(key)) || [];
+    const dateKey = this.formatDateKey(date);
+    const data = await this.getAllPlannerData();
+    return data.todos[dateKey] || [];
   }
 
   async addTodo(date, text) {
-    const key = this.getStorageKey(this.KEYS.TODOS_PREFIX, date);
-    const todos = await this.getTodos(date);
+    const dateKey = this.formatDateKey(date);
+    const data = await this.getAllPlannerData();
+    
+    if (!data.todos[dateKey]) {
+      data.todos[dateKey] = [];
+    }
+    
     const newTodo = {
       id: Date.now(),
       text,
       completed: false,
-      createdAt: new Date().toISOString(),
+      createdAt: new Date().toISOString()
     };
-    todos.push(newTodo);
-    await this.dataService.set(key, todos);
+    
+    data.todos[dateKey].push(newTodo);
+    await this.savePlannerData(data);
     return newTodo;
   }
 
   async toggleTodo(date, id) {
-    const key = this.getStorageKey(this.KEYS.TODOS_PREFIX, date);
-    const todos = await this.getTodos(date);
-    const todo = todos.find((t) => t.id === id);
+    const dateKey = this.formatDateKey(date);
+    const data = await this.getAllPlannerData();
+    
+    if (!data.todos[dateKey]) return null;
+    
+    const todo = data.todos[dateKey].find(t => t.id === id);
     if (todo) {
       todo.completed = !todo.completed;
       todo.updatedAt = new Date().toISOString();
-      await this.dataService.set(key, todos);
+      await this.savePlannerData(data);
     }
     return todo;
   }
 
   async deleteTodo(date, id) {
-    const key = this.getStorageKey(this.KEYS.TODOS_PREFIX, date);
+    const dateKey = this.formatDateKey(date);
+    const data = await this.getAllPlannerData();
+    
+    if (!data.todos[dateKey]) return [];
+    
+    data.todos[dateKey] = data.todos[dateKey].filter(t => t.id !== id);
+    await this.savePlannerData(data);
+    return data.todos[dateKey];
+  }
+
+  // New utility methods for querying across dates
+  async getScheduleRange(startDate, endDate) {
+    const data = await this.getAllPlannerData();
+    const schedules = {};
+    
+    let currentDate = new Date(startDate);
+    const end = new Date(endDate);
+    
+    while (currentDate <= end) {
+      const dateKey = this.formatDateKey(currentDate);
+      schedules[dateKey] = data.schedules[dateKey] || this.getDefaultSchedule();
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return schedules;
+  }
+
+  async getTodosInRange(startDate, endDate) {
+    const data = await this.getAllPlannerData();
+    const todos = {};
+    
+    let currentDate = new Date(startDate);
+    const end = new Date(endDate);
+    
+    while (currentDate <= end) {
+      const dateKey = this.formatDateKey(currentDate);
+      todos[dateKey] = data.todos[dateKey] || [];
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return todos;
+  }
+
+  async getCompletedTodos(date) {
     const todos = await this.getTodos(date);
-    const filteredTodos = todos.filter((t) => t.id !== id);
-    await this.dataService.set(key, filteredTodos);
-    return filteredTodos;
+    return todos.filter(todo => todo.completed);
+  }
+
+  async getPendingTodos(date) {
+    const todos = await this.getTodos(date);
+    return todos.filter(todo => !todo.completed);
   }
 }
