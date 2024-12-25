@@ -2,7 +2,64 @@ export class PlannerService {
   constructor(dataService) {
     this.dataService = dataService;
     this.STORAGE_KEY = 'planner_data';
-    // console.log("PlannerService initialized");
+    this.USER_INFO_KEY = 'user_info';
+    this.initialize();
+  }
+
+  async initialize() {
+    // Check if user info has been saved before
+    const existingUserInfo = await this.dataService.get(this.USER_INFO_KEY);
+    
+    if (!existingUserInfo) {
+      const userInfo = this.collectUserInfo();
+      await this.dataService.set(this.USER_INFO_KEY, {
+        ...userInfo,
+        firstVisit: new Date().toISOString(),
+        lastVisit: new Date().toISOString()
+      });
+    } else {
+      // Update last visit time
+      await this.dataService.set(this.USER_INFO_KEY, {
+        ...existingUserInfo,
+        lastVisit: new Date().toISOString()
+      });
+    }
+  }
+
+  collectUserInfo() {
+    return {
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      language: navigator.language,
+      screenResolution: {
+        width: window.screen.width,
+        height: window.screen.height,
+        colorDepth: window.screen.colorDepth
+      },
+      viewport: {
+        width: window.innerWidth,
+        height: window.innerHeight
+      },
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      cookiesEnabled: navigator.cookieEnabled,
+      doNotTrack: navigator.doNotTrack,
+      deviceMemory: navigator?.deviceMemory,
+      hardwareConcurrency: navigator?.hardwareConcurrency,
+      connection: this.getConnectionInfo()
+    };
+  }
+
+  getConnectionInfo() {
+    const connection = navigator?.connection || navigator?.mozConnection || navigator?.webkitConnection;
+    if (connection) {
+      return {
+        type: connection.effectiveType,
+        downlink: connection.downlink,
+        rtt: connection.rtt,
+        saveData: connection.saveData
+      };
+    }
+    return null;
   }
 
   formatDateKey(date) {
@@ -15,6 +72,10 @@ export class PlannerService {
       notes: {},
       todos: {}
     };
+  }
+
+  async getUserInfo() {
+    return await this.dataService.get(this.USER_INFO_KEY);
   }
 
   async savePlannerData(data) {

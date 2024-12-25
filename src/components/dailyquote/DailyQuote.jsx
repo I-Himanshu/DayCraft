@@ -78,20 +78,19 @@ const DailyQuote = () => {
   }).format(today);
 
   return (
-    <div className="bg-gradient-to-r from-gray-50 to-white rounded-xl shadow-lg p-10 mb-6 transition-transform transform hover:scale-105">
+    <div className="bg-gradient-to-r from-gray-50 to-white rounded-xl shadow-lg p-8 mb-6 transition-transform transform hover:scale-105">
     <div className="flex justify-center mb-4">
-        <span className="text-6xl text-gray-300">“</span>
+        <span className="text-4xl text-gray-300">“</span>
     </div>
     {currentQuote && (
         <div className="text-center space-y-6">
             <blockquote className="text-3xl text-gray-800 font-bold italic leading-relaxed">
                 "{currentQuote}"
             </blockquote>
-            <cite className="text-lg text-gray-600 font-normal">— Author Name</cite>
         </div>
     )}
     <div className="flex justify-center mt-4">
-        <span className="text-6xl text-gray-300">”</span>
+        <span className="text-4xl text-gray-300">”</span>
     </div>
 </div>
 
