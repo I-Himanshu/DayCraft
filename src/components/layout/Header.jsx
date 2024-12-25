@@ -21,7 +21,7 @@ export const Header = () => {
         <div className="flex justify-between items-center">
           {/* Logo/Title */}
           <h1 className="text-lg sm:text-2xl text-primary-600 font-bold">
-            DayCraft
+            DayMap
           </h1>
 
           {/* Desktop Navigation */}
