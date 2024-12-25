@@ -10,7 +10,7 @@ const ProtectedRoute = ({ children }) => {
   if (loading) {
     return <LoadingScreen />;  // Show the loading screen while checking auth state
   }
-
+  return children;
   return user ? children : <Navigate to="/login" />;
 };
 

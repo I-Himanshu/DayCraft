@@ -21,10 +21,8 @@ export default function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public Route */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          {/* Protected Routes */}
           <Route
             path="/"
             element={

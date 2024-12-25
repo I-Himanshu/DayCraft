@@ -2,19 +2,19 @@ import React, { useState } from "react";
 import { loginUser } from "../../services/AuthService";
 import { UserIcon } from "@heroicons/react/20/solid";
 import { LockClosedIcon } from "@heroicons/react/24/outline";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
-    setLoading(true); // Start loading state
-
-    // Basic email validation
+    setError("");
+    setLoading(true);
     if (!/\S+@\S+\.\S+/.test(email)) {
       setError("Please enter a valid email address.");
       setLoading(false);
@@ -23,12 +23,12 @@ const Login = () => {
 
     try {
       await loginUser(email, password);
-      alert("Login successful!");
-      // Optionally redirect or do something after successful login
+      console.log("Login successful!");
+      navigate("/");
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false); // End loading state
+      setLoading(false);
     }
   };
 

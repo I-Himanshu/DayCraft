@@ -1,22 +1,22 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+import { useNavigate } from "react-router-dom";
 import { registerUser } from "../../services/AuthService";
 
 const Signup = () => {
-  const [fullName, setFullName] = useState(""); // State for full name
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
+    setError("");
 
     try {
-      await registerUser(fullName, email, password); // Pass fullName to registerUser
-      alert("Signup successful!");
-      navigate("/login"); // Redirect to login page after successful signup
+      await registerUser(fullName, email, password);
+      console.log("Signup successful!");
+      navigate("/");
     } catch (err) {
       setError(err.message);
     }
