@@ -3,6 +3,7 @@ import { TodoList } from '../components/todos/TodoList';
 import { Notes } from '../components/notes/Notes';
 import DateSelector from '../components/DateSelector';
 import usePlanner from '../hooks/usePlanner';
+import DailyQuote from '../components/dailyquote/DailyQuote';
 
 
 export default function Dashboard() {
@@ -37,6 +38,7 @@ export default function Dashboard() {
         {/* Main Content */}
         <main className="flex-1">
           <div className="max-w-7xl mx-auto px-4 py-6">
+            <DailyQuote />
             {/* Stats Overview */}
             <StatsOverview 
               schedule={schedule} 
